@@ -57,3 +57,17 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+.whoop-logo-image {
+  filter: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .whoop-logo-image {
+    filter: invert(1);
+  }
+}
+
+:root[data-theme="dark"] .whoop-logo-image {
+  filter: invert(1);
+}

@@ -40,7 +40,7 @@ export default function StravaCard() {
 
   if (status === "loading") {
     return (
-      <DashboardCard title="" icon={<StravaLogo />}>
+      <DashboardCard title="" icon={<StravaLogo className="scale-90 origin-left" />}>
         <div className="space-y-2 animate-pulse">
           <div className="h-4 bg-foreground/10 rounded w-3/4"></div>
           <div className="h-4 bg-foreground/10 rounded w-1/2"></div>
@@ -51,7 +51,7 @@ export default function StravaCard() {
 
   if (status === "error") {
     return (
-      <DashboardCard title="" icon={<StravaLogo />}>
+      <DashboardCard title="" icon={<StravaLogo className="scale-90 origin-left" />}>
         <p className="text-sm text-red-400">{errorMsg}</p>
         <p className="text-xs text-foreground/50 mt-2">
           Ensure STRAVA_ACCESS_TOKEN, STRAVA_REFRESH_TOKEN, STRAVA_CLIENT_ID, and STRAVA_CLIENT_SECRET are configured, or get fresh tokens from <a href="/strava-auth" className="underline">/strava-auth</a>.
@@ -62,7 +62,7 @@ export default function StravaCard() {
 
   if (!data) {
     return (
-      <DashboardCard title="" icon={<StravaLogo />}>
+      <DashboardCard title="" icon={<StravaLogo className="scale-90 origin-left" />}>
         <p className="text-sm text-foreground/70">No data available</p>
       </DashboardCard>
     );
@@ -72,7 +72,7 @@ export default function StravaCard() {
   const maxMiles = Math.max(...data.weeklyMileage.map((w) => w.miles), 1);
 
   return (
-    <DashboardCard title="" icon={<StravaLogo />}>
+    <DashboardCard title="" icon={<StravaLogo className="scale-90 origin-left" />}>
       <div className="space-y-3">
         {/* Total */}
         <div className="bg-foreground/5 rounded-lg p-3">

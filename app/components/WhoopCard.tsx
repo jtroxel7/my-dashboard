@@ -43,7 +43,7 @@ export default function WhoopCard() {
 
   if (status === "loading") {
     return (
-      <DashboardCard title="" icon={<WhoopLogo />}>
+      <DashboardCard title="" icon={<WhoopLogo className="scale-90 origin-left" />}>
         <div className="space-y-2 animate-pulse">
           <div className="h-4 bg-foreground/10 rounded w-3/4"></div>
           <div className="h-4 bg-foreground/10 rounded w-1/2"></div>
@@ -56,7 +56,7 @@ export default function WhoopCard() {
     const isLocal = typeof window !== "undefined" && window.location?.hostname === "localhost";
     const is401 = errorMsg.includes("401");
     return (
-      <DashboardCard title="" icon={<WhoopLogo />}>
+      <DashboardCard title="" icon={<WhoopLogo className="scale-90 origin-left" />}>
         <p className="text-sm text-red-400">{errorMsg}</p>
         <p className="text-xs text-foreground/50 mt-2">
           {isLocal ? (
@@ -81,14 +81,14 @@ export default function WhoopCard() {
 
   if (!data) {
     return (
-      <DashboardCard title="" icon={<WhoopLogo />}>
+      <DashboardCard title="" icon={<WhoopLogo className="scale-90 origin-left" />}>
         <p className="text-sm text-foreground/70">No data available</p>
       </DashboardCard>
     );
   }
 
   return (
-    <DashboardCard title="" icon={<WhoopLogo />}>
+    <DashboardCard title="" icon={<WhoopLogo className="scale-90 origin-left" />}>
       <div className="grid grid-cols-6 gap-3">
         {/* Row 1: Recovery (colored), Sleep, Strain */}
         <div

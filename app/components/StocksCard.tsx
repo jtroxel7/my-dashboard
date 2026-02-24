@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import DashboardCard from "./DashboardCard";
+import StocksIcon from "./StocksIcon";
 import type { StocksData } from "@/app/lib/types/stocks";
 
 type Status = "loading" | "error" | "ok";
@@ -39,7 +40,7 @@ export default function StocksCard() {
 
   if (status === "loading") {
     return (
-      <DashboardCard title="Stocks">
+      <DashboardCard title="Stocks" icon={<StocksIcon />}>
         <div className="space-y-2 animate-pulse">
           <div className="h-4 bg-foreground/10 rounded w-3/4"></div>
           <div className="h-4 bg-foreground/10 rounded w-1/2"></div>
@@ -50,7 +51,7 @@ export default function StocksCard() {
 
   if (status === "error") {
     return (
-      <DashboardCard title="Stocks">
+      <DashboardCard title="Stocks" icon={<StocksIcon />}>
         <p className="text-sm text-red-400">{errorMsg}</p>
         <p className="text-xs text-foreground/50 mt-2">
           Check your internet connection or try again later.
@@ -61,7 +62,7 @@ export default function StocksCard() {
 
   if (!data || data.quotes.length === 0) {
     return (
-      <DashboardCard title="Stocks">
+      <DashboardCard title="Stocks" icon={<StocksIcon />}>
         <p className="text-sm text-red-400">No stock data available</p>
         <p className="text-xs text-foreground/50 mt-2">
           Check the browser console (F12) for error details. The API may be rate-limited.
@@ -71,7 +72,7 @@ export default function StocksCard() {
   }
 
   return (
-    <DashboardCard title="Stocks">
+    <DashboardCard title="Stocks" icon={<StocksIcon />}>
       {isMockData && (
         <p className="text-xs text-yellow-500 mb-3">
           Showing sample data (API may be rate-limited)

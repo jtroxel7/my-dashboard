@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import DashboardCard from "./DashboardCard";
+import WeatherIcon from "./WeatherIcon";
 import type { WeatherData } from "@/app/lib/types/weather";
 import { getWeatherInfo } from "@/app/lib/weatherCodes";
 
@@ -42,7 +43,7 @@ export default function WeatherCard() {
 
   if (status === "loading") {
     return (
-      <DashboardCard title="Weather" className="md:col-span-2">
+      <DashboardCard title="Weather" icon={<WeatherIcon />} className="md:col-span-2">
         <p className="text-sm text-foreground/70 animate-pulse">
           Detecting location...
         </p>
@@ -52,7 +53,7 @@ export default function WeatherCard() {
 
   if (status === "denied") {
     return (
-      <DashboardCard title="Weather" className="md:col-span-2">
+      <DashboardCard title="Weather" icon={<WeatherIcon />} className="md:col-span-2">
         <p className="text-sm text-foreground/70">
           Location permission denied. Enable location access to see your
           forecast.
@@ -63,7 +64,7 @@ export default function WeatherCard() {
 
   if (status === "error" || !weather) {
     return (
-      <DashboardCard title="Weather" className="md:col-span-2">
+      <DashboardCard title="Weather" icon={<WeatherIcon />} className="md:col-span-2">
         <p className="text-sm text-red-400">{errorMsg}</p>
       </DashboardCard>
     );
@@ -82,7 +83,7 @@ export default function WeatherCard() {
   );
 
   return (
-    <DashboardCard title="Weather" className="md:col-span-2">
+    <DashboardCard title="Weather" icon={<WeatherIcon />} className="md:col-span-2">
       {/* Location */}
       <p className="mb-3 text-sm font-medium text-foreground/70">
         {weather.location}

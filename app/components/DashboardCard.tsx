@@ -28,12 +28,12 @@ export default function DashboardCard({
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           {icon && (
-            <span className="flex shrink-0 [&>svg]:h-5 [&>svg]:w-auto">
+            <span className="flex shrink-0 [&>svg]:h-5 [&>svg]:w-auto [&>img]:h-5 [&>img]:w-auto">
               {icon}
             </span>
           )}
           {title ? (
-            <h2 className="text-sm font-semibold tracking-wide text-foreground/60">
+            <h2 className="text-lg font-semibold tracking-wide text-foreground/80">
               {title}
             </h2>
           ) : null}
