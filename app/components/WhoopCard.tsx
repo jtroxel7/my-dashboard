@@ -17,8 +17,15 @@ export default function WhoopCard() {
       try {
         const res = await fetch("/api/whoop");
         if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to fetch Whoop data");
+          const errorData = await res.json().catch(() => ({}));
+          const msg =
+            errorData.hint ||
+            errorData.error ||
+            "Failed to fetch Whoop data";
+          const statusCode = errorData.statusCode ?? res.status;
+          throw new Error(
+            statusCode ? `${msg} (${statusCode})` : msg
+          );
         }
         const whoopData: WhoopData = await res.json();
         setData(whoopData);
@@ -46,11 +53,27 @@ export default function WhoopCard() {
   }
 
   if (status === "error") {
+    const isLocal = typeof window !== "undefined" && window.location?.hostname === "localhost";
+    const is401 = errorMsg.includes("401");
     return (
       <DashboardCard title="" icon={<WhoopLogo />}>
         <p className="text-sm text-red-400">{errorMsg}</p>
         <p className="text-xs text-foreground/50 mt-2">
-          Ensure WHOOP_ACCESS_TOKEN is configured in Vercel environment variables.
+          {isLocal ? (
+            is401 ? (
+              <>
+                Add <code className="bg-foreground/10 px-1 rounded">WHOOP_REFRESH_TOKEN</code>,{" "}
+                <code className="bg-foreground/10 px-1 rounded">WHOOP_CLIENT_ID</code>, and{" "}
+                <code className="bg-foreground/10 px-1 rounded">WHOOP_CLIENT_SECRET</code> to .env.local and restart, or get a new token from <a href="/whoop-auth" className="underline">/whoop-auth</a>.
+              </>
+            ) : (
+              <>
+                Add <code className="bg-foreground/10 px-1 rounded">WHOOP_ACCESS_TOKEN</code> to .env.local (get a token from <a href="/whoop-auth" className="underline">/whoop-auth</a>), then restart the dev server.
+              </>
+            )
+          ) : (
+            "Ensure WHOOP_ACCESS_TOKEN (and optionally WHOOP_REFRESH_TOKEN) are set in your hosting environment variables."
+          )}
         </p>
       </DashboardCard>
     );

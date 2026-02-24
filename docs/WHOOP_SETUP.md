@@ -109,7 +109,7 @@ If you prefer to use Postman (or another OAuth client) instead of the in-app flo
 | “WHOOP_ACCESS_TOKEN is not configured” | `.env.local` has `WHOOP_ACCESS_TOKEN=...` and you restarted the dev server. |
 | “WHOOP_CLIENT_ID is not set” on /whoop-auth | Add `WHOOP_CLIENT_ID` and `WHOOP_CLIENT_SECRET` to `.env.local` and restart. |
 | Redirect URI mismatch after clicking Connect WHOOP | In the WHOOP dashboard, the redirect URI must be **exactly** `http://localhost:3000/api/whoop/oauth/callback` (same protocol, host, and path). |
-| 401 Unauthorized from WHOOP | Token expired. Get a new token from /whoop-auth and update `WHOOP_ACCESS_TOKEN`. |
+| 401 Unauthorized from WHOOP | Token expired. If `WHOOP_REFRESH_TOKEN` is set, the app will auto-refresh. Otherwise get a new token from /whoop-auth and update `WHOOP_ACCESS_TOKEN`. |
 | “No cycle data available” | WHOOP account may have no recent data; check the WHOOP app. |
 
 More detail: [WHOOP OAuth](https://developer.whoop.com/docs/developing/oauth), [Getting started](https://developer.whoop.com/docs/developing/getting-started).
