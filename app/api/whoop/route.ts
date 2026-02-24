@@ -147,6 +147,8 @@ export async function GET(request: NextRequest) {
     }
 
     const cycleId = cycles[0].id;
+    const cycleScore = cycles[0].score;
+    const strain = cycleScore?.strain ?? 0;
 
     // Fetch recovery data for the cycle (404 = no recovery for this cycle yet, treat as optional)
     result = await whoopFetch(
@@ -158,7 +160,6 @@ export async function GET(request: NextRequest) {
 
     let recovery = 0;
     let hrv = 0;
-    const strain = cycles[0].strain || 0;
 
     if (recoveryRes.status === 404) {
       // No recovery data for this cycle yet (e.g. cycle just started) — keep going
@@ -183,8 +184,9 @@ export async function GET(request: NextRequest) {
       );
     } else {
       const recoveryData = await recoveryRes.json();
-      recovery = recoveryData.recovery_score || 0;
-      hrv = recoveryData.hrv_rmssd_milli || 0;
+      const score = recoveryData.score;
+      recovery = score?.recovery_score ?? 0;
+      hrv = score?.hrv_rmssd_milli ?? 0;
     }
 
     // Fetch sleep data
@@ -200,7 +202,8 @@ export async function GET(request: NextRequest) {
       const sleepData = await sleepRes.json();
       const sleepRecords = sleepData.records || [];
       if (sleepRecords.length > 0) {
-        sleep = sleepRecords[0].score || 0;
+        const sleepScore = sleepRecords[0].score;
+        sleep = sleepScore?.sleep_performance_percentage ?? 0;
       }
     }
 

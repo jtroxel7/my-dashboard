@@ -72,11 +72,52 @@ Your dashboard uses the WHOOP API with a single environment variable: **`WHOOP_A
 
 ---
 
-## Step 5: If you deploy (e.g. Vercel)
+## Step 5: Production deployment (Vercel or other hosts)
 
-- In Vercel → Project → Settings → Environment Variables, add:
-  - `WHOOP_ACCESS_TOKEN` = the token you got from `/whoop-auth` (or a new one from running the flow again).
-- Redeploy so the new variable is used.
+To make WHOOP work on your live site:
+
+### 1. Add the production redirect URI in WHOOP
+
+1. Go to **https://developer-dashboard.whoop.com/** → your app → edit.
+2. Under **Redirect URI(s)**, add your production URL’s callback (exact path matters):
+   - **Vercel**: `https://<your-project>.vercel.app/api/whoop/oauth/callback`  
+     (Replace `<your-project>` with your Vercel project URL, e.g. `my-dashboard`. If you use a custom domain, use that host instead.)
+   - **Other hosts**: `https://your-domain.com/api/whoop/oauth/callback`
+3. Save.
+
+### 2. Add environment variables in your host
+
+In your hosting dashboard (e.g. **Vercel** → Project → **Settings** → **Environment Variables**), add the same variables you use locally. For **Production** (and optionally Preview if you want WHOOP on preview URLs), set:
+
+| Variable | Value | Required |
+|----------|--------|----------|
+| `WHOOP_CLIENT_ID` | Same as in .env.local | Yes |
+| `WHOOP_CLIENT_SECRET` | Same as in .env.local | Yes |
+| `WHOOP_ACCESS_TOKEN` | See step 3 below | Yes (or get in step 3) |
+| `WHOOP_REFRESH_TOKEN` | From /whoop-auth success page | Recommended (auto-refresh) |
+| `NEXT_PUBLIC_APP_URL` | Your production URL, e.g. `https://my-dashboard.vercel.app` | Optional; use if you have a custom domain or OAuth redirect issues |
+
+You can paste your local values for `WHOOP_CLIENT_ID` and `WHOOP_CLIENT_SECRET`. Leave `WHOOP_ACCESS_TOKEN` and `WHOOP_REFRESH_TOKEN` empty for now if you prefer to get them from the live site (step 3).
+
+### 3. Get a token on the live site
+
+1. Deploy (or redeploy) so the new env vars are applied.
+2. Open your **production** URL in the browser:  
+   **https://&lt;your-site&gt;/whoop-auth**
+3. Click **Connect WHOOP**, sign in, and approve. You’ll be redirected back to the success page on your live site.
+4. Copy the **access token** (and the **refresh token** if shown).
+5. In your host’s **Environment Variables**, set:
+   - `WHOOP_ACCESS_TOKEN` = the access token you just copied  
+   - `WHOOP_REFRESH_TOKEN` = the refresh token you copied (recommended)
+6. **Redeploy** so the new tokens are used. The WHOOP card on the live site should then work.
+
+### 4. Optional: Custom domain
+
+If you use a custom domain (e.g. `https://dashboard.mycompany.com`):
+
+- Add the redirect URI `https://dashboard.mycompany.com/api/whoop/oauth/callback` in the WHOOP app settings.
+- Set `NEXT_PUBLIC_APP_URL=https://dashboard.mycompany.com` in your host’s env vars so the OAuth callback uses the correct URL.
+- Redeploy, then run the flow again at `https://dashboard.mycompany.com/whoop-auth` and put the new tokens into env vars.
 
 ---
 
