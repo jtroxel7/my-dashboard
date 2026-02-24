@@ -54,25 +54,35 @@ export async function GET(request: NextRequest) {
           const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
           const res = await fetch(url, { next: { revalidate: 300 } });
           const data = (await res.json()) as any;
+
+          // Log the response for debugging
+          console.log(`[Stocks API] ${symbol} response:`, data);
+
           const quote = data["Global Quote"];
 
           if (!quote || !quote["05. price"]) {
+            console.log(`[Stocks API] No price data for ${symbol}`);
             return { symbol, price: 0, change: 0, changePercent: 0 };
           }
 
-          return {
+          const result = {
             symbol,
             price: parseFloat(quote["05. price"]) || 0,
             change: parseFloat(quote["09. change"]) || 0,
             changePercent: parseFloat(quote["10. change percent"]?.replace("%", "") || "0"),
           };
-        } catch {
+          console.log(`[Stocks API] ${symbol} parsed:`, result);
+          return result;
+        } catch (error) {
+          console.error(`[Stocks API] Error fetching ${symbol}:`, error);
           return { symbol, price: 0, change: 0, changePercent: 0 };
         }
       })
     );
 
+    console.log("[Stocks API] All quotes before filter:", quotes);
     const filteredQuotes = quotes.filter((q) => q.price > 0);
+    console.log("[Stocks API] Filtered quotes:", filteredQuotes);
 
     const data: StocksData = {
       quotes: filteredQuotes,

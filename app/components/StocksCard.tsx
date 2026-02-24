@@ -17,16 +17,17 @@ export default function StocksCard() {
         const res = await fetch("/api/stocks");
         if (!res.ok) {
           const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to fetch stock data");
+          throw new Error(errorData.error || `HTTP ${res.status}`);
         }
         const stocksData: StocksData = await res.json();
+        console.log("[StocksCard] Data received:", stocksData);
         setData(stocksData);
         setStatus("ok");
       } catch (error) {
         setStatus("error");
-        setErrorMsg(
-          error instanceof Error ? error.message : "Failed to load stock data"
-        );
+        const message = error instanceof Error ? error.message : "Failed to load stock data";
+        console.error("[StocksCard] Error:", message);
+        setErrorMsg(message);
       }
     };
 
@@ -58,7 +59,10 @@ export default function StocksCard() {
   if (!data || data.quotes.length === 0) {
     return (
       <DashboardCard title="Stocks" icon="📈">
-        <p className="text-sm text-foreground/70">No stock data available</p>
+        <p className="text-sm text-red-400">No stock data available</p>
+        <p className="text-xs text-foreground/50 mt-2">
+          Check the browser console (F12) for error details. The API may be rate-limited.
+        </p>
       </DashboardCard>
     );
   }
