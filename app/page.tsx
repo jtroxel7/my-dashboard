@@ -1,4 +1,5 @@
 import DashboardCard from "./components/DashboardCard";
+import WeatherCard from "./components/WeatherCard";
 
 export default function Home() {
   return (
@@ -17,11 +18,7 @@ export default function Home() {
           </p>
         </DashboardCard>
 
-        <DashboardCard title="Weather" icon="☀️">
-          <p className="text-sm text-foreground/70">
-            Add a weather integration to see your local forecast.
-          </p>
-        </DashboardCard>
+        <WeatherCard />
 
         <DashboardCard title="Running" icon="🏃">
           <p className="text-sm text-foreground/70">
