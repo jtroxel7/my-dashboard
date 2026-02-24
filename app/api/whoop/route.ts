@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { WhoopData } from "@/app/lib/types/whoop";
 
-const WHOOP_BASE_URL = "https://api.prod.whoop.com/developer/v1";
+const WHOOP_BASE_URL = "https://api.prod.whoop.com/developer/v2";
 const WHOOP_TOKEN_URL = "https://api.prod.whoop.com/oauth/oauth2/token";
 
 // In-memory cache of refreshed tokens (new access + refresh token; used after 401 to avoid re-refreshing every request)
@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch latest cycle
+    // Fetch latest cycle (v2: GET /v2/cycle?limit=1)
     let result = await whoopFetch(
       `${WHOOP_BASE_URL}/cycle?limit=1`,
       accessToken
@@ -150,7 +150,7 @@ export async function GET(request: NextRequest) {
     const cycleScore = cycles[0].score;
     const strain = cycleScore?.strain ?? 0;
 
-    // Fetch recovery data for the cycle (404 = no recovery for this cycle yet, treat as optional)
+    // Fetch recovery for this cycle (v2: single object with score)
     result = await whoopFetch(
       `${WHOOP_BASE_URL}/cycle/${cycleId}/recovery`,
       accessToken
@@ -160,6 +160,7 @@ export async function GET(request: NextRequest) {
 
     let recovery = 0;
     let hrv = 0;
+    let restingHeartRate = 0;
 
     if (recoveryRes.status === 404) {
       // No recovery data for this cycle yet (e.g. cycle just started) — keep going
@@ -184,14 +185,16 @@ export async function GET(request: NextRequest) {
       );
     } else {
       const recoveryData = await recoveryRes.json();
-      const score = recoveryData.score;
-      recovery = score?.recovery_score ?? 0;
-      hrv = score?.hrv_rmssd_milli ?? 0;
+      const score = recoveryData.score ?? recoveryData;
+      recovery = score?.recovery_score ?? recoveryData.recovery_score ?? 0;
+      hrv = score?.hrv_rmssd_milli ?? recoveryData.hrv_rmssd_milli ?? 0;
+      restingHeartRate =
+        score?.resting_heart_rate ?? recoveryData.resting_heart_rate ?? 0;
     }
 
-    // Fetch sleep data
+    // Fetch sleep for this cycle (v2: GET /v2/cycle/{cycleId}/sleep returns single sleep object)
     result = await whoopFetch(
-      `${WHOOP_BASE_URL}/activity/sleep?limit=1`,
+      `${WHOOP_BASE_URL}/cycle/${cycleId}/sleep`,
       accessToken
     );
     const { res: sleepRes } = result;
@@ -200,26 +203,37 @@ export async function GET(request: NextRequest) {
     let sleep = 0;
     if (sleepRes.ok) {
       const sleepData = await sleepRes.json();
-      const sleepRecords = sleepData.records || [];
-      if (sleepRecords.length > 0) {
-        const sleepScore = sleepRecords[0].score;
-        sleep = sleepScore?.sleep_performance_percentage ?? 0;
-      }
+      const sleepScore = sleepData.score ?? sleepData;
+      sleep =
+        sleepScore?.sleep_performance_percentage ??
+        sleepData.sleep_performance_percentage ??
+        0;
     }
 
-    // Fetch workout/activity data for steps
-    result = await whoopFetch(
-      `${WHOOP_BASE_URL}/activity/workout?limit=1`,
-      accessToken
-    );
-    const { res: workoutRes } = result;
-
+    // Steps: use cycle score if API provides it, else estimate from latest workout distance
     let steps = 0;
-    if (workoutRes.ok) {
-      const workoutData = await workoutRes.json();
-      const workouts = workoutData.records || [];
-      if (workouts.length > 0) {
-        steps = workouts[0].steps || 0;
+    const cycleSteps =
+      typeof cycleScore?.steps === "number" ? cycleScore.steps : undefined;
+    if (cycleSteps != null && cycleSteps > 0) {
+      steps = cycleSteps;
+    } else {
+      result = await whoopFetch(
+        `${WHOOP_BASE_URL}/activity/workout?limit=1`,
+        accessToken
+      );
+      const { res: workoutRes } = result;
+      accessToken = result.accessToken;
+      if (workoutRes.ok) {
+        const workoutData = await workoutRes.json();
+        const workouts = workoutData.records || [];
+        if (workouts.length > 0) {
+          const w = workouts[0];
+          const score = w.score ?? w;
+          const distanceMeter = score?.distance_meter ?? w.distance_meter;
+          if (typeof distanceMeter === "number" && distanceMeter > 0) {
+            steps = Math.round(distanceMeter / 0.762);
+          }
+        }
       }
     }
 
@@ -227,6 +241,7 @@ export async function GET(request: NextRequest) {
       recovery,
       sleep,
       hrv,
+      restingHeartRate,
       steps,
       strain,
     };

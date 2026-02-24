@@ -89,9 +89,18 @@ export default function WhoopCard() {
 
   return (
     <DashboardCard title="" icon={<WhoopLogo />}>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-foreground/5 rounded-lg p-3">
-          <p className="text-xs text-foreground/60 mb-1">Recovery</p>
+      <div className="grid grid-cols-3 gap-3">
+        {/* Row 1: Recovery (colored), Sleep, Strain */}
+        <div
+          className={`rounded-lg p-3 ${
+            data.recovery <= 33
+              ? "bg-red-500/20 text-red-400"
+              : data.recovery <= 66
+                ? "bg-orange-500/20 text-orange-400"
+                : "bg-green-500/20 text-green-400"
+          }`}
+        >
+          <p className="text-xs opacity-80 mb-1">Recovery</p>
           <p className="text-lg font-bold">{Math.round(data.recovery)}%</p>
         </div>
         <div className="bg-foreground/5 rounded-lg p-3">
@@ -99,14 +108,21 @@ export default function WhoopCard() {
           <p className="text-lg font-bold">{Math.round(data.sleep)}%</p>
         </div>
         <div className="bg-foreground/5 rounded-lg p-3">
+          <p className="text-xs text-foreground/60 mb-1">Strain</p>
+          <p className="text-lg font-bold">{data.strain.toFixed(1)}</p>
+        </div>
+        {/* Row 2: HRV, Resting HR, Steps */}
+        <div className="bg-foreground/5 rounded-lg p-3">
           <p className="text-xs text-foreground/60 mb-1">HRV</p>
           <p className="text-lg font-bold">{Math.round(data.hrv)}ms</p>
         </div>
         <div className="bg-foreground/5 rounded-lg p-3">
-          <p className="text-xs text-foreground/60 mb-1">Strain</p>
-          <p className="text-lg font-bold">{data.strain.toFixed(1)}</p>
+          <p className="text-xs text-foreground/60 mb-1">Resting HR</p>
+          <p className="text-lg font-bold">
+            {data.restingHeartRate ? `${data.restingHeartRate} bpm` : "—"}
+          </p>
         </div>
-        <div className="col-span-2 bg-foreground/5 rounded-lg p-3">
+        <div className="bg-foreground/5 rounded-lg p-3">
           <p className="text-xs text-foreground/60 mb-1">Steps</p>
           <p className="text-lg font-bold">{data.steps.toLocaleString()}</p>
         </div>
