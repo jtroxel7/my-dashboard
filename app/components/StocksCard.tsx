@@ -10,6 +10,7 @@ export default function StocksCard() {
   const [status, setStatus] = useState<Status>("loading");
   const [data, setData] = useState<StocksData | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isMockData, setIsMockData] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,8 +21,10 @@ export default function StocksCard() {
           throw new Error(errorData.error || `HTTP ${res.status}`);
         }
         const stocksData: StocksData = await res.json();
-        console.log("[StocksCard] Data received:", stocksData);
+        const dataSource = res.headers.get("X-Data-Source");
+        console.log("[StocksCard] Data received:", stocksData, "Source:", dataSource);
         setData(stocksData);
+        setIsMockData(dataSource === "mock");
         setStatus("ok");
       } catch (error) {
         setStatus("error");
@@ -69,6 +72,11 @@ export default function StocksCard() {
 
   return (
     <DashboardCard title="Stocks" icon="📈">
+      {isMockData && (
+        <p className="text-xs text-yellow-500 mb-3">
+          ⚠️ Showing sample data (API may be rate-limited)
+        </p>
+      )}
       <div className="space-y-2">
         {data.quotes.map((quote) => {
           const isPositive = quote.changePercent >= 0;

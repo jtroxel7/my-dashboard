@@ -84,6 +84,23 @@ export async function GET(request: NextRequest) {
     const filteredQuotes = quotes.filter((q) => q.price > 0);
     console.log("[Stocks API] Filtered quotes:", filteredQuotes);
 
+    // If no valid quotes from API, log and return fallback
+    if (filteredQuotes.length === 0) {
+      console.warn(
+        "[Stocks API] No valid quotes returned. Alpha Vantage may be rate-limited. Returning mock data."
+      );
+      // Fall back to mock data if API returns nothing
+      const mockData: StocksData = {
+        quotes: Object.values(MOCK_QUOTES),
+      };
+      return NextResponse.json(mockData, {
+        headers: {
+          "Cache-Control": "public, s-maxage=60", // Short cache for mock data
+          "X-Data-Source": "mock",
+        },
+      });
+    }
+
     const data: StocksData = {
       quotes: filteredQuotes,
     };
@@ -91,6 +108,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data, {
       headers: {
         "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+        "X-Data-Source": "live",
       },
     });
   } catch (error) {
