@@ -22,7 +22,8 @@ export default function DashboardCard({
   return (
     <div
       className={`card p-5 ${collapsible ? "cursor-pointer" : ""} ${className}`}
-      onClick={collapsible ? () => setIsOpen((prev) => !prev) : undefined}
+      onPointerUp={collapsible ? () => setIsOpen((prev) => !prev) : undefined}
+      style={collapsible ? { touchAction: "manipulation" } : undefined}
     >
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
@@ -40,6 +41,9 @@ export default function DashboardCard({
         {collapsible ? (
           <button
             type="button"
+            onPointerUp={(event) => {
+              event.stopPropagation();
+            }}
             onClick={(event) => {
               event.stopPropagation();
               setIsOpen((prev) => !prev);
