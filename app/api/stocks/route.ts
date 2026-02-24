@@ -10,24 +10,28 @@ const MOCK_QUOTES = {
     price: 487.32,
     change: 2.15,
     changePercent: 0.44,
+    changePercent1Week: 1.2,
   },
   VT: {
     symbol: "VT",
     price: 118.54,
     change: 1.08,
     changePercent: 0.92,
+    changePercent1Week: 0.8,
   },
   QQQ: {
     symbol: "QQQ",
     price: 423.91,
     change: 3.22,
     changePercent: 0.77,
+    changePercent1Week: 2.1,
   },
   VTTSX: {
     symbol: "VTTSX",
     price: 47.28,
     change: 0.31,
     changePercent: 0.66,
+    changePercent1Week: 0.5,
   },
 };
 
@@ -51,18 +55,37 @@ export async function GET(request: NextRequest) {
     const quotes = await Promise.all(
       symbols.map(async (symbol) => {
         try {
-          const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-          const res = await fetch(url, { next: { revalidate: 300 } });
-          const data = (await res.json()) as any;
+          const [quoteRes, weeklyRes] = await Promise.all([
+            fetch(
+              `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`,
+              { next: { revalidate: 300 } }
+            ),
+            fetch(
+              `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${symbol}&apikey=${apiKey}`,
+              { next: { revalidate: 300 } }
+            ),
+          ]);
+          const quoteData = (await quoteRes.json()) as Record<string, unknown>;
+          const weeklyData = (await weeklyRes.json()) as Record<string, unknown>;
 
-          // Log the response for debugging
-          console.log(`[Stocks API] ${symbol} response:`, data);
-
-          const quote = data["Global Quote"];
+          const quote = quoteData["Global Quote"] as Record<string, string> | undefined;
+          const weekly = weeklyData["Weekly Time Series"] as Record<string, Record<string, string>> | undefined;
 
           if (!quote || !quote["05. price"]) {
             console.log(`[Stocks API] No price data for ${symbol}`);
             return { symbol, price: 0, change: 0, changePercent: 0 };
+          }
+
+          let changePercent1Week: number | undefined;
+          if (weekly) {
+            const keys = Object.keys(weekly).sort().reverse();
+            if (keys.length >= 2) {
+              const currClose = parseFloat(weekly[keys[0]]["4. close"]) || 0;
+              const prevClose = parseFloat(weekly[keys[1]]["4. close"]) || 0;
+              if (prevClose > 0) {
+                changePercent1Week = ((currClose - prevClose) / prevClose) * 100;
+              }
+            }
           }
 
           const result = {
@@ -70,6 +93,7 @@ export async function GET(request: NextRequest) {
             price: parseFloat(quote["05. price"]) || 0,
             change: parseFloat(quote["09. change"]) || 0,
             changePercent: parseFloat(quote["10. change percent"]?.replace("%", "") || "0"),
+            ...(changePercent1Week !== undefined && { changePercent1Week }),
           };
           console.log(`[Stocks API] ${symbol} parsed:`, result);
           return result;

@@ -79,29 +79,35 @@ export default function StocksCard() {
       )}
       <div className="space-y-2">
         {data.quotes.map((quote) => {
-          const isPositive = quote.changePercent >= 0;
+          const isPositive1d = quote.changePercent >= 0;
+          const isPositive1w = (quote.changePercent1Week ?? 0) >= 0;
           return (
             <div
               key={quote.symbol}
               className="flex items-center justify-between bg-foreground/5 rounded-lg p-3"
             >
-              <div>
-                <p className="font-semibold text-sm">{quote.symbol}</p>
-                <p className="text-xs text-foreground/60">
-                  ${quote.price.toFixed(2)}
-                </p>
-              </div>
-              <div
-                className={`text-right ${isPositive ? "text-green-400" : "text-red-400"}`}
-              >
-                <p className="text-sm font-medium">
-                  {isPositive ? "+" : ""}
-                  {quote.change.toFixed(2)}
-                </p>
-                <p className="text-xs">
-                  {isPositive ? "+" : ""}
-                  {quote.changePercent.toFixed(2)}%
-                </p>
+              <p className="font-semibold text-sm">{quote.symbol}</p>
+              <div className="flex gap-4 text-right">
+                <span
+                  className={`text-sm font-medium ${isPositive1d ? "text-green-400" : "text-red-400"}`}
+                  title="1 day"
+                >
+                  {isPositive1d ? "+" : ""}
+                  {quote.changePercent.toFixed(2)}% 1d
+                </span>
+                <span
+                  className={`text-sm font-medium ${isPositive1w ? "text-green-400" : "text-red-400"}`}
+                  title="1 week"
+                >
+                  {quote.changePercent1Week != null ? (
+                    <>
+                      {isPositive1w ? "+" : ""}
+                      {quote.changePercent1Week.toFixed(2)}% 1w
+                    </>
+                  ) : (
+                    <span className="text-foreground/50">— 1w</span>
+                  )}
+                </span>
               </div>
             </div>
           );
