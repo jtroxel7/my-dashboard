@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import DashboardCard from "./DashboardCard";
+import WhoopLogo from "./WhoopLogo";
 import type { WhoopData } from "@/app/lib/types/whoop";
 
 type Status = "loading" | "error" | "ok";
@@ -35,7 +36,7 @@ export default function WhoopCard() {
 
   if (status === "loading") {
     return (
-      <DashboardCard title="Whoop" icon="💚">
+      <DashboardCard title="" icon={<WhoopLogo />}>
         <div className="space-y-2 animate-pulse">
           <div className="h-4 bg-foreground/10 rounded w-3/4"></div>
           <div className="h-4 bg-foreground/10 rounded w-1/2"></div>
@@ -46,7 +47,7 @@ export default function WhoopCard() {
 
   if (status === "error") {
     return (
-      <DashboardCard title="Whoop" icon="💚">
+      <DashboardCard title="" icon={<WhoopLogo />}>
         <p className="text-sm text-red-400">{errorMsg}</p>
         <p className="text-xs text-foreground/50 mt-2">
           Ensure WHOOP_ACCESS_TOKEN is configured in Vercel environment variables.
@@ -57,14 +58,14 @@ export default function WhoopCard() {
 
   if (!data) {
     return (
-      <DashboardCard title="Whoop" icon="💚">
+      <DashboardCard title="" icon={<WhoopLogo />}>
         <p className="text-sm text-foreground/70">No data available</p>
       </DashboardCard>
     );
   }
 
   return (
-    <DashboardCard title="Whoop" icon="💚">
+    <DashboardCard title="" icon={<WhoopLogo />}>
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-foreground/5 rounded-lg p-3">
           <p className="text-xs text-foreground/60 mb-1">Recovery</p>

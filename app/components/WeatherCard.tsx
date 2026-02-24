@@ -42,7 +42,7 @@ export default function WeatherCard() {
 
   if (status === "loading") {
     return (
-      <DashboardCard title="Weather" icon="☀️" className="md:col-span-2">
+      <DashboardCard title="Weather" className="md:col-span-2">
         <p className="text-sm text-foreground/70 animate-pulse">
           Detecting location...
         </p>
@@ -52,7 +52,7 @@ export default function WeatherCard() {
 
   if (status === "denied") {
     return (
-      <DashboardCard title="Weather" icon="☀️" className="md:col-span-2">
+      <DashboardCard title="Weather" className="md:col-span-2">
         <p className="text-sm text-foreground/70">
           Location permission denied. Enable location access to see your
           forecast.
@@ -63,7 +63,7 @@ export default function WeatherCard() {
 
   if (status === "error" || !weather) {
     return (
-      <DashboardCard title="Weather" icon="☀️" className="md:col-span-2">
+      <DashboardCard title="Weather" className="md:col-span-2">
         <p className="text-sm text-red-400">{errorMsg}</p>
       </DashboardCard>
     );
@@ -82,18 +82,17 @@ export default function WeatherCard() {
   );
 
   return (
-    <DashboardCard title="Weather" icon="☀️" className="md:col-span-2">
+    <DashboardCard title="Weather" className="md:col-span-2">
       {/* Location */}
       <p className="mb-3 text-sm font-medium text-foreground/70">
-        📍 {weather.location}
+        {weather.location}
       </p>
 
       {/* Current conditions */}
       <div className="mb-4 flex items-center gap-4">
-        <span className="text-4xl">{current.emoji}</span>
+        <span className="text-2xl font-semibold text-foreground/80">{current.label}</span>
         <div>
           <p className="text-3xl font-bold">{weather.current.temperature}&deg;F</p>
-          <p className="text-sm text-foreground/60">{current.label}</p>
         </div>
         <div className="ml-auto text-right text-sm text-foreground/60">
           <p>Feels like {weather.current.feelsLike}&deg;</p>
@@ -116,7 +115,7 @@ export default function WeatherCard() {
                 className="flex shrink-0 flex-col items-center gap-1 text-xs"
               >
                 <span className="text-foreground/50">{hour}</span>
-                <span>{info.emoji}</span>
+                <span className="text-foreground/70">{info.label}</span>
                 <span className="font-medium">{h.temperature}&deg;</span>
               </div>
             );
@@ -137,7 +136,7 @@ export default function WeatherCard() {
               className="flex items-center gap-3 text-sm"
             >
               <span className="w-10 text-foreground/60">{day}</span>
-              <span>{info.emoji}</span>
+              <span className="text-foreground/70 min-w-[4rem]">{info.label}</span>
               <span className="ml-auto tabular-nums">
                 {d.tempMin}&deg; / {d.tempMax}&deg;
               </span>

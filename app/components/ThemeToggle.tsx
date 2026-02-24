@@ -50,7 +50,7 @@ export default function ThemeToggle() {
   }
 
   return (
-    <DashboardCard title="Theme" icon="🎨">
+    <DashboardCard title="Theme">
       <div className="flex gap-3">
         <button
           onClick={setLightMode}
