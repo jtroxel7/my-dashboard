@@ -28,8 +28,16 @@ export async function GET(request: NextRequest) {
     );
 
     if (!activitiesRes.ok) {
+      let errorDetail = `HTTP ${activitiesRes.status}`;
+      try {
+        const errorBody = await activitiesRes.json();
+        errorDetail = errorBody.message || errorBody.error || errorDetail;
+      } catch {
+        // If response isn't JSON, use status text
+        errorDetail = activitiesRes.statusText || errorDetail;
+      }
       return NextResponse.json(
-        { error: "Failed to fetch Strava activities" },
+        { error: `Strava API error: ${errorDetail}` },
         { status: activitiesRes.status }
       );
     }
