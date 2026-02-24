@@ -20,6 +20,7 @@ export interface DailyForecast {
 }
 
 export interface WeatherData {
+  location: string;
   current: CurrentWeather;
   hourly: HourlyForecast[];
   daily: DailyForecast[];

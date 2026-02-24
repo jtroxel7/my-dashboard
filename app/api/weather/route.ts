@@ -13,6 +13,23 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Fetch location name via reverse geocoding
+  const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+  const geocodeRes = await fetch(geocodeUrl, {
+    headers: { "User-Agent": "WeatherDashboard/1.0" },
+    next: { revalidate: 86400 }, // cache for 24 hours
+  });
+
+  let location = "Unknown Location";
+  if (geocodeRes.ok) {
+    const geocodeData = await geocodeRes.json();
+    location = geocodeData.address?.city ||
+               geocodeData.address?.town ||
+               geocodeData.address?.village ||
+               geocodeData.address?.county ||
+               "Unknown Location";
+  }
+
   const url = new URL("https://api.open-meteo.com/v1/forecast");
   url.searchParams.set("latitude", lat);
   url.searchParams.set("longitude", lon);
@@ -50,6 +67,7 @@ export async function GET(request: NextRequest) {
     }));
 
   const data: WeatherData = {
+    location,
     current: {
       temperature: Math.round(raw.current.temperature_2m),
       feelsLike: Math.round(raw.current.apparent_temperature),

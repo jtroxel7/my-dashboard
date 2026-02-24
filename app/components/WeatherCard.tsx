@@ -73,6 +73,11 @@ export default function WeatherCard() {
 
   return (
     <DashboardCard title="Weather" icon="☀️" className="md:col-span-2">
+      {/* Location */}
+      <p className="mb-3 text-sm font-medium text-foreground/70">
+        📍 {weather.location}
+      </p>
+
       {/* Current conditions */}
       <div className="mb-4 flex items-center gap-4">
         <span className="text-4xl">{current.emoji}</span>
