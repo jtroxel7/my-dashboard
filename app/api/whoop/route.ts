@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import type { WhoopData } from "@/app/lib/types/whoop";
 
 const WHOOP_BASE_URL = "https://api.prod.whoop.com/developer/v2";
@@ -10,6 +10,21 @@ let tokenCache: {
   refreshToken: string;
   expiresAt: number;
 } | null = null;
+
+function firstNumber(...values: unknown[]): number {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+  }
+  return 0;
+}
 
 /** Refresh access token using WHOOP_REFRESH_TOKEN. Returns new tokens or null. */
 async function refreshWhoopTokens(): Promise<{
@@ -110,7 +125,7 @@ async function whoopFetch(
   return { res, accessToken };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   let accessToken = await getWhoopAccessToken();
 
   if (!accessToken) {
@@ -186,10 +201,28 @@ export async function GET(request: NextRequest) {
     } else {
       const recoveryData = await recoveryRes.json();
       const score = recoveryData.score ?? recoveryData;
-      recovery = score?.recovery_score ?? recoveryData.recovery_score ?? 0;
-      hrv = score?.hrv_rmssd_milli ?? recoveryData.hrv_rmssd_milli ?? 0;
-      restingHeartRate =
-        score?.resting_heart_rate ?? recoveryData.resting_heart_rate ?? 0;
+      recovery = firstNumber(
+        score?.recovery_score,
+        score?.recoveryScore,
+        recoveryData.recovery_score,
+        recoveryData.recoveryScore
+      );
+      hrv = firstNumber(
+        score?.hrv_rmssd_milli,
+        score?.hrvRmssdMilli,
+        recoveryData.hrv_rmssd_milli,
+        recoveryData.hrvRmssdMilli
+      );
+      restingHeartRate = firstNumber(
+        score?.resting_heart_rate,
+        score?.restingHeartRate,
+        score?.resting_heart_rate_bpm,
+        score?.restingHeartRateBpm,
+        recoveryData.resting_heart_rate,
+        recoveryData.restingHeartRate,
+        recoveryData.resting_heart_rate_bpm,
+        recoveryData.restingHeartRateBpm
+      );
     }
 
     // Fetch sleep for this cycle (v2: GET /v2/cycle/{cycleId}/sleep returns single sleep object)
@@ -210,39 +243,11 @@ export async function GET(request: NextRequest) {
         0;
     }
 
-    // Steps: use cycle score if API provides it, else estimate from latest workout distance
-    let steps = 0;
-    const cycleSteps =
-      typeof cycleScore?.steps === "number" ? cycleScore.steps : undefined;
-    if (cycleSteps != null && cycleSteps > 0) {
-      steps = cycleSteps;
-    } else {
-      result = await whoopFetch(
-        `${WHOOP_BASE_URL}/activity/workout?limit=1`,
-        accessToken
-      );
-      const { res: workoutRes } = result;
-      accessToken = result.accessToken;
-      if (workoutRes.ok) {
-        const workoutData = await workoutRes.json();
-        const workouts = workoutData.records || [];
-        if (workouts.length > 0) {
-          const w = workouts[0];
-          const score = w.score ?? w;
-          const distanceMeter = score?.distance_meter ?? w.distance_meter;
-          if (typeof distanceMeter === "number" && distanceMeter > 0) {
-            steps = Math.round(distanceMeter / 0.762);
-          }
-        }
-      }
-    }
-
     const data: WhoopData = {
       recovery,
       sleep,
       hrv,
       restingHeartRate,
-      steps,
       strain,
     };
 
