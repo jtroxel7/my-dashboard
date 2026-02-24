@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import DashboardCard from "./DashboardCard";
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false);
@@ -18,22 +19,30 @@ export default function ThemeToggle() {
         "(prefers-color-scheme: dark)"
       ).matches;
       setIsDark(prefersDark);
+      applyTheme(prefersDark);
     }
   }, []);
 
   const applyTheme = (dark: boolean) => {
     if (dark) {
-      document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.style.colorScheme = "dark";
     } else {
-      document.documentElement.classList.remove("dark");
+      document.documentElement.setAttribute("data-theme", "light");
+      document.documentElement.style.colorScheme = "light";
     }
   };
 
-  const toggleTheme = () => {
-    const newDark = !isDark;
-    setIsDark(newDark);
-    localStorage.setItem("theme", newDark ? "dark" : "light");
-    applyTheme(newDark);
+  const setLightMode = () => {
+    setIsDark(false);
+    localStorage.setItem("theme", "light");
+    applyTheme(false);
+  };
+
+  const setDarkMode = () => {
+    setIsDark(true);
+    localStorage.setItem("theme", "dark");
+    applyTheme(true);
   };
 
   if (!mounted) {
@@ -41,17 +50,29 @@ export default function ThemeToggle() {
   }
 
   return (
-    <button
-      onClick={toggleTheme}
-      className="fixed bottom-8 right-8 p-2 rounded-lg bg-foreground/10 hover:bg-foreground/20 transition-colors"
-      aria-label="Toggle dark mode"
-      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-    >
-      {isDark ? (
-        <span className="text-xl">☀️</span>
-      ) : (
-        <span className="text-xl">🌙</span>
-      )}
-    </button>
+    <DashboardCard title="Theme" icon="🎨">
+      <div className="flex gap-3">
+        <button
+          onClick={setLightMode}
+          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+            !isDark
+              ? "bg-foreground text-background"
+              : "bg-foreground/10 text-foreground hover:bg-foreground/20"
+          }`}
+        >
+          Light
+        </button>
+        <button
+          onClick={setDarkMode}
+          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+            isDark
+              ? "bg-foreground text-background"
+              : "bg-foreground/10 text-foreground hover:bg-foreground/20"
+          }`}
+        >
+          Dark
+        </button>
+      </div>
+    </DashboardCard>
   );
 }
