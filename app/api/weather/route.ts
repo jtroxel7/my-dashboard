@@ -54,17 +54,12 @@ export async function GET(request: NextRequest) {
 
   const raw = await res.json();
 
-  const now = new Date();
-  const currentHourIndex = raw.hourly.time.findIndex(
-    (t: string) => new Date(t) >= now
-  );
-  const hourlySlice = raw.hourly.time
-    .slice(currentHourIndex, currentHourIndex + 12)
-    .map((time: string, i: number) => ({
-      time,
-      temperature: Math.round(raw.hourly.temperature_2m[currentHourIndex + i]),
-      weatherCode: raw.hourly.weather_code[currentHourIndex + i],
-    }));
+  // Return all hourly data; client will filter based on browser time
+  const hourlyData = raw.hourly.time.map((time: string, i: number) => ({
+    time,
+    temperature: Math.round(raw.hourly.temperature_2m[i]),
+    weatherCode: raw.hourly.weather_code[i],
+  }));
 
   const data: WeatherData = {
     location,
@@ -75,7 +70,7 @@ export async function GET(request: NextRequest) {
       windSpeed: Math.round(raw.current.wind_speed_10m),
       weatherCode: raw.current.weather_code,
     },
-    hourly: hourlySlice,
+    hourly: hourlyData,
     daily: raw.daily.time.map((date: string, i: number) => ({
       date,
       tempMin: Math.round(raw.daily.temperature_2m_min[i]),

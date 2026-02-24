@@ -71,6 +71,16 @@ export default function WeatherCard() {
 
   const current = getWeatherInfo(weather.current.weatherCode);
 
+  // Filter hourly data to show next 12 hours from current time
+  const now = new Date();
+  const currentHourIndex = weather.hourly.findIndex(
+    (h) => new Date(h.time) >= now
+  );
+  const next12Hours = weather.hourly.slice(
+    currentHourIndex,
+    currentHourIndex + 12
+  );
+
   return (
     <DashboardCard title="Weather" icon="☀️" className="md:col-span-2">
       {/* Location */}
@@ -95,7 +105,7 @@ export default function WeatherCard() {
       {/* Hourly forecast */}
       <div className="mb-4 -mx-1 overflow-x-auto">
         <div className="flex gap-3 px-1 pb-2">
-          {weather.hourly.map((h) => {
+          {next12Hours.map((h) => {
             const info = getWeatherInfo(h.weatherCode);
             const hour = new Date(h.time).toLocaleTimeString([], {
               hour: "numeric",
