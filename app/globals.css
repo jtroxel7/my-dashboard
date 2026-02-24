@@ -5,6 +5,11 @@
   --foreground: #171717;
   --card-bg: #ffffff;
   --card-border: #e5e7eb;
+
+  --radius: 4px;
+  --radius-sm: 2px;
+  --border-width: 2px;
+  --shadow-offset: 4px;
 }
 
 @theme inline {
@@ -17,9 +22,8 @@
 }
 
 /* Dark mode via data-theme attribute or system preference */
-:root[data-theme="dark"],
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --background: #0a0a0a;
     --foreground: #ededed;
     --card-bg: #1c1c1c;
@@ -39,6 +43,13 @@
   --foreground: #171717;
   --card-bg: #ffffff;
   --card-border: #e5e7eb;
+}
+
+.card {
+  border-radius: var(--radius);
+  border: var(--border-width) solid var(--card-border);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--card-border);
 }
 
 body {

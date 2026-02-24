@@ -13,7 +13,7 @@ export default function DashboardCard({
 }: DashboardCardProps) {
   return (
     <div
-      className={`rounded-xl border border-card-border bg-card-bg p-5 shadow-sm ${className}`}
+      className={`card p-5 ${className}`}
     >
       <div className="mb-3 flex items-center gap-2">
         {icon && <span className="text-lg">{icon}</span>}
