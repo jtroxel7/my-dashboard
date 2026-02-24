@@ -25,6 +25,23 @@
   }
 }
 
+/* Manual dark mode class override */
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card-bg: #1c1c1c;
+  --card-border: #2e2e2e;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.dark {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --card-bg: #1c1c1c;
+    --card-border: #2e2e2e;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
