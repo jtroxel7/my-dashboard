@@ -1,5 +1,7 @@
-import DashboardCard from "./components/DashboardCard";
 import WeatherCard from "./components/WeatherCard";
+import WhoopCard from "./components/WhoopCard";
+import StravaCard from "./components/StravaCard";
+import StocksCard from "./components/StocksCard";
 
 export default function Home() {
   return (
@@ -12,25 +14,13 @@ export default function Home() {
       </header>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-        <DashboardCard title="Whoop" icon="💚">
-          <p className="text-sm text-foreground/70">
-            Connect Whoop to see your recovery and strain data.
-          </p>
-        </DashboardCard>
-
         <WeatherCard />
 
-        <DashboardCard title="Running" icon="🏃">
-          <p className="text-sm text-foreground/70">
-            Connect Strava or Garmin to see your running stats.
-          </p>
-        </DashboardCard>
+        <WhoopCard />
 
-        <DashboardCard title="Stocks" icon="📈">
-          <p className="text-sm text-foreground/70">
-            Add tickers to track your stock portfolio.
-          </p>
-        </DashboardCard>
+        <StravaCard />
+
+        <StocksCard />
       </div>
     </div>
   );

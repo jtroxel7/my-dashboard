@@ -1,0 +1,100 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import DashboardCard from "./DashboardCard";
+import type { StocksData } from "@/app/lib/types/stocks";
+
+type Status = "loading" | "error" | "ok";
+
+export default function StocksCard() {
+  const [status, setStatus] = useState<Status>("loading");
+  const [data, setData] = useState<StocksData | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("/api/stocks");
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Failed to fetch stock data");
+        }
+        const stocksData: StocksData = await res.json();
+        setData(stocksData);
+        setStatus("ok");
+      } catch (error) {
+        setStatus("error");
+        setErrorMsg(
+          error instanceof Error ? error.message : "Failed to load stock data"
+        );
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (status === "loading") {
+    return (
+      <DashboardCard title="Stocks" icon="📈">
+        <div className="space-y-2 animate-pulse">
+          <div className="h-4 bg-foreground/10 rounded w-3/4"></div>
+          <div className="h-4 bg-foreground/10 rounded w-1/2"></div>
+        </div>
+      </DashboardCard>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <DashboardCard title="Stocks" icon="📈">
+        <p className="text-sm text-red-400">{errorMsg}</p>
+        <p className="text-xs text-foreground/50 mt-2">
+          Check your internet connection or try again later.
+        </p>
+      </DashboardCard>
+    );
+  }
+
+  if (!data || data.quotes.length === 0) {
+    return (
+      <DashboardCard title="Stocks" icon="📈">
+        <p className="text-sm text-foreground/70">No stock data available</p>
+      </DashboardCard>
+    );
+  }
+
+  return (
+    <DashboardCard title="Stocks" icon="📈">
+      <div className="space-y-2">
+        {data.quotes.map((quote) => {
+          const isPositive = quote.changePercent >= 0;
+          return (
+            <div
+              key={quote.symbol}
+              className="flex items-center justify-between bg-foreground/5 rounded-lg p-3"
+            >
+              <div>
+                <p className="font-semibold text-sm">{quote.symbol}</p>
+                <p className="text-xs text-foreground/60">
+                  ${quote.price.toFixed(2)}
+                </p>
+              </div>
+              <div
+                className={`text-right ${isPositive ? "text-green-400" : "text-red-400"}`}
+              >
+                <p className="text-sm font-medium">
+                  {isPositive ? "+" : ""}
+                  {quote.change.toFixed(2)}
+                </p>
+                <p className="text-xs">
+                  {isPositive ? "+" : ""}
+                  {quote.changePercent.toFixed(2)}%
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </DashboardCard>
+  );
+}
