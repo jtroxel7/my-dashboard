@@ -17,8 +17,12 @@ export default function StravaCard() {
       try {
         const res = await fetch("/api/strava");
         if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Failed to fetch Strava data");
+          const errorData = await res.json().catch(() => ({}));
+          const baseMsg =
+            errorData.error || "Failed to fetch Strava data";
+          const msg =
+            errorData.hint ? `${baseMsg} ${errorData.hint}` : baseMsg;
+          throw new Error(msg);
         }
         const stravaData: StravaData = await res.json();
         setData(stravaData);
@@ -50,7 +54,7 @@ export default function StravaCard() {
       <DashboardCard title="" icon={<StravaLogo />}>
         <p className="text-sm text-red-400">{errorMsg}</p>
         <p className="text-xs text-foreground/50 mt-2">
-          Ensure STRAVA_ACCESS_TOKEN is configured in Vercel environment variables.
+          Ensure STRAVA_ACCESS_TOKEN, STRAVA_REFRESH_TOKEN, STRAVA_CLIENT_ID, and STRAVA_CLIENT_SECRET are configured, or get fresh tokens from <a href="/strava-auth" className="underline">/strava-auth</a>.
         </p>
       </DashboardCard>
     );
